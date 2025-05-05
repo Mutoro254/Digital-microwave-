@@ -1,0 +1,112 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+public class MicrowaveSimulator {
+    private JFrame frame;
+    private JLabel statusLabel;
+    private JButton startButton, stopButton, lowButton, mediumButton, highButton;
+    private JSpinner timerSpinner;
+    private Timer timer;
+    private int remainingTime;
+    private String powerLevel = "Medium";
+
+    public MicrowaveSimulator() {
+        frame = new JFrame("Microwave Simulator");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(300, 200);
+
+        // UI Components
+        statusLabel = new JLabel("Ready to start", SwingConstants.CENTER);
+        statusLabel.setFont(new Font("Arial", Font.BOLD, 16));
+
+        startButton = new JButton("Start");
+        stopButton = new JButton("Stop");
+        lowButton = new JButton("Low");
+        mediumButton = new JButton("Medium");
+        highButton = new JButton("High");
+
+        timerSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 30, 1));  // Timer from 1 to 30 minutes
+        timerSpinner.setEditor(new JSpinner.NumberEditor(timerSpinner, "00"));
+
+        // Timer setup for countdown
+        timer = new Timer(1000, new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (remainingTime > 0) {
+                    remainingTime--;
+                    updateStatus();
+                } else {
+                    statusLabel.setText("Done!");
+                    timer.stop();
+                }
+            }
+        });
+
+        // Event listeners
+        startButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                remainingTime = (int) timerSpinner.getValue() * 60; // Convert minutes to seconds
+                timer.start();
+                statusLabel.setText("Cooking at " + powerLevel + " power...");
+            }
+        });
+
+        stopButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                timer.stop();
+                statusLabel.setText("Microwave Stopped");
+            }
+        });
+
+        lowButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                powerLevel = "Low";
+                statusLabel.setText("Power set to Low");
+            }
+        });
+
+        mediumButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                powerLevel = "Medium";
+                statusLabel.setText("Power set to Medium");
+            }
+        });
+
+        highButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                powerLevel = "High";
+                statusLabel.setText("Power set to High");
+            }
+        });
+
+        // Layout setup
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridLayout(4, 2));
+        panel.add(new JLabel("Timer (Minutes):"));
+        panel.add(timerSpinner);
+        panel.add(startButton);
+        panel.add(stopButton);
+        panel.add(lowButton);
+        panel.add(mediumButton);
+        panel.add(highButton);
+        panel.add(statusLabel);
+
+        frame.getContentPane().add(panel);
+        frame.setVisible(true);
+    }
+
+    private void updateStatus() {
+        int minutes = remainingTime / 60;
+        int seconds = remainingTime % 60;
+        statusLabel.setText("Cooking at " + powerLevel + ": " + minutes + "m " + seconds + "s");
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                new MicrowaveSimulator();
+            }
+        });
+    }
+}
